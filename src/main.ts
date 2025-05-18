@@ -7,14 +7,16 @@ type Person = {
     image: string
 }
 
+type Actress = {
+    most_famous_movies: [string, string, string];
+    awards: string;
+    nazionality: "American" | "British" | "Australian" | "Israeli-American" | "South African" | "French" | "Indian" | "Israeli" | "Spanish" | "South Korean" | "Chinese"
+}
 
-//! 📌 Milestone 1
-//* Crea un type alias Person per rappresentare una persona generica.
-//* Il tipo deve includere le seguenti proprietà:
-//?     id: numero identificativo, non modificabile
-//?     name: nome completo, stringa non modificabile
-//?     birth_year: anno di nascita, numero
-//?     death_year: anno di morte, numero opzionale
-//?     biography: breve biografia, stringa
-//?     image: URL dell'immagine, stringa
+//! 📌 Milestone 2
+//* Crea un type alias Actress che oltre a tutte le proprietà di Person, aggiunge le seguenti proprietà:
+//?     most_famous_movies: una tuple di 3 stringhe
+//?     awards: una stringa
+//?     nationality: una stringa tra un insieme definito di valori.
+//?         Le nazionalità accettate sono: American, British, Australian, Israeli-American, South African, French, Indian, Israeli, Spanish, South Korean, Chinese.
 
