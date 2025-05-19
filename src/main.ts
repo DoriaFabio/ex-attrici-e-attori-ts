@@ -1,23 +1,23 @@
-// Definizione del tipo base "Person" con proprietà comuni a tutte le persone
+//! Definizione del tipo base "Person" con proprietà comuni a tutte le persone
 type Person = {
-    readonly id: number,         // ID univoco (non modificabile)
-    readonly name: string,       // Nome della persona (non modificabile)
-    birth_year: number,          // Anno di nascita
-    death_year?: number,         // Anno di morte (facoltativo)
-    biography: string,           // Biografia in formato testo
-    image: string                // URL dell'immagine
+    readonly id: number,      // ID univoco (non modificabile)
+    readonly name: string,    // Nome della persona (non modificabile)
+    birth_year: number,       // Anno di nascita
+    death_year?: number,      // Anno di morte (facoltativo)
+    biography: string,        // Biografia in formato testo
+    image: string             // URL dell'immagine
 }
 
-// Estensione del tipo Person per creare il tipo Actress
+//! Estensione del tipo Person per creare il tipo Actress
 type Actress = Person & {
-    most_famous_movies: [string, string, string]; // Esattamente 3 film famosi
-    awards: string;                               // Premi ricevuti
-    nazionality: "American" | "British" | "Australian" | "Israeli-American" | 
-                 "South African" | "French" | "Indian" | "Israeli" | "Spanish" | 
-                 "South Korean" | "Chinese";       // Nazionalità limitata a questi valori
+    most_famous_movies: [string, string, string];  // Esattamente 3 film famosi
+    awards: string;                                // Premi ricevuti
+    nazionality: "American" | "British" | "Australian" | "Israeli-American" |
+    "South African" | "French" | "Indian" | "Israeli" | "Spanish" |
+    "South Korean" | "Chinese";       // Nazionalità limitata a questi valori
 }
 
-// Type guard per verificare se un oggetto sconosciuto è di tipo Actress
+//! Type guard per verificare se un oggetto sconosciuto è di tipo Actress
 function isActress(dati: unknown): dati is Actress {
     return (
         typeof dati === "object" && dati != null &&                             // Controlla che sia un oggetto
@@ -34,28 +34,52 @@ function isActress(dati: unknown): dati is Actress {
     )
 }
 
-// Funzione asincrona per ottenere un'attrice dal server tramite ID
+//! Funzione asincrona per ottenere un'attrice dal server tramite ID
 async function getActress(id: number): Promise<Actress | null> {
     try {
-        // Effettua una richiesta GET all'endpoint API locale
+        //? Effettua una richiesta GET all'endpoint API locale
         const res = await fetch(`http://localhost:5000/actresses/${id}`)
-        // Parsea il corpo della risposta come JSON
+        //? Parsea il corpo della risposta come JSON
         const dati: unknown = await res.json();
-        // Verifica che i dati ricevuti siano compatibili con il tipo Actress
+        //? Verifica che i dati ricevuti siano compatibili con il tipo Actress
         if (!isActress(dati)) {
             throw new Error("Formato dei dati non valido")
         }
-        // Se tutto è valido, restituisce l'oggetto Actress
-        return dati;
+        return dati;  //? Se tutto è valido, restituisce l'oggetto Actress
 
     } catch (error) {
-        // Gestione degli errori con stampa a console
+        //? Gestione degli errori con stampa a console
         if (error instanceof Error) {
             console.error("Errore durante il recupero dell'attrice:", error);
         } else {
             console.error("Errore sconosciuto:", error);
         }
-        // In caso di errore, restituisce null
+        //? In caso di errore, restituisce null
         return null;
+    }
+}
+
+//! Funzione asincrona per ottenere l'elenco delle attrici
+async function getAllActresses(): Promise<Actress[]> {
+    try {
+        //? Effettua una richiesta GET all'endpoint API
+        const res = await fetch("http://localhost:5000/actresses")
+        //? Parsea il corpo della risposta come JSON
+        const dati: unknown = await res.json();
+        //? Verifica che i dati ricevuti siano compatibili con il tipo Actress
+        if (!(dati instanceof Array)) {
+            throw new Error("Formato dei dati non valido");
+        }
+        //? Creo un array con i dati di isActress
+        const attriciValide: Actress[] = dati.filter(isActress)
+        return attriciValide;  //? Se tutto è valido, restituisco l'array Actress
+    } catch (error) {
+        //? Gestione degli errori con stampa a console
+        if (error instanceof Error) {
+            console.error("Errore durante il recupero delle attrici:", error);
+        } else {
+            console.error("Errore sconosciuto:", error);
+        }
+        return [];  //? In caso di errore, restituisce un array vuoto
     }
 }
