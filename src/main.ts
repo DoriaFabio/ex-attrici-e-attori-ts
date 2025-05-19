@@ -83,3 +83,22 @@ async function getAllActresses(): Promise<Actress[]> {
         return [];  //? In caso di errore, restituisce un array vuoto
     }
 }
+
+//! Funzione asincrona che riceve un array di ID e restituisce un array di attrici (o null)
+//todo Usa la funzione getActress per recuperare ogni attrice singolarmente
+async function getActresses(ArrayId: number[]): Promise<(Actress | null)[]> {
+    try {
+        //? Mappa ogni ID a una promessa restituita da getActress
+        const promises = ArrayId.map(id => getActress(id));
+        //? Attende che tutte le promesse siano completate in parallelo
+        return await Promise.all(promises);  //? Restituisce un array di risultati (ognuno può essere Actress o null)
+    } catch (error) {
+        //? Gestione degli errori: stampa in console un messaggio specifico
+        if (error instanceof Error) {
+            console.error("Errore durante il recupero delle attrici:", error);
+        } else {
+            console.error("Errore sconosciuto:", error);
+        }
+        return [];  //? In caso di errore, restituisce un array vuoto
+    }
+}
