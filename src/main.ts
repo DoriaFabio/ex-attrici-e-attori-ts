@@ -1,22 +1,61 @@
+// Definizione del tipo base "Person" con proprietà comuni a tutte le persone
 type Person = {
-    readonly id: number,
-    readonly name: string,
-    birth_year: number,
-    death_year?: number,
-    biography: string,
-    image: string
+    readonly id: number,         // ID univoco (non modificabile)
+    readonly name: string,       // Nome della persona (non modificabile)
+    birth_year: number,          // Anno di nascita
+    death_year?: number,         // Anno di morte (facoltativo)
+    biography: string,           // Biografia in formato testo
+    image: string                // URL dell'immagine
 }
 
-type Actress = {
-    most_famous_movies: [string, string, string];
-    awards: string;
-    nazionality: "American" | "British" | "Australian" | "Israeli-American" | "South African" | "French" | "Indian" | "Israeli" | "Spanish" | "South Korean" | "Chinese"
+// Estensione del tipo Person per creare il tipo Actress
+type Actress = Person & {
+    most_famous_movies: [string, string, string]; // Esattamente 3 film famosi
+    awards: string;                               // Premi ricevuti
+    nazionality: "American" | "British" | "Australian" | "Israeli-American" | 
+                 "South African" | "French" | "Indian" | "Israeli" | "Spanish" | 
+                 "South Korean" | "Chinese";       // Nazionalità limitata a questi valori
 }
 
-//! 📌 Milestone 2
-//* Crea un type alias Actress che oltre a tutte le proprietà di Person, aggiunge le seguenti proprietà:
-//?     most_famous_movies: una tuple di 3 stringhe
-//?     awards: una stringa
-//?     nationality: una stringa tra un insieme definito di valori.
-//?         Le nazionalità accettate sono: American, British, Australian, Israeli-American, South African, French, Indian, Israeli, Spanish, South Korean, Chinese.
+// Type guard per verificare se un oggetto sconosciuto è di tipo Actress
+function isActress(dati: unknown): dati is Actress {
+    return (
+        typeof dati === "object" && dati != null &&                             // Controlla che sia un oggetto
+        "id" in dati && typeof dati.id === "number" &&                          // id è un numero
+        "name" in dati && typeof dati.name === "string" &&                      // name è una stringa
+        "birth_year" in dati && typeof dati.birth_year === "number" &&          // birth_year è un numero
+        ("death_year" in dati ? typeof dati.death_year === "number" : true) &&  // death_year è un numero (qui è opzionale, vedi nota sotto)
+        "biography" in dati && typeof dati.biography === "string" &&            // biography è una stringa
+        "image" in dati && typeof dati.image === "string" &&                    // image è una stringa (URL)
+        "most_famous_movies" in dati && dati.most_famous_movies instanceof Array &&  // Deve essere un array
+        dati.most_famous_movies.length === 3 && dati.most_famous_movies.every(m => typeof m === "string") && // Deve avere esattamente 3 stringhe
+        "awards" in dati && typeof dati.awards === "string" &&                  // awards è una stringa
+        "nationality" in dati && typeof dati.nationality === "string"           // nationality è una stringa (verifica del valore non stretta)
+    )
+}
 
+// Funzione asincrona per ottenere un'attrice dal server tramite ID
+async function getActress(id: number): Promise<Actress | null> {
+    try {
+        // Effettua una richiesta GET all'endpoint API locale
+        const res = await fetch(`http://localhost:5000/actresses/${id}`)
+        // Parsea il corpo della risposta come JSON
+        const dati: unknown = await res.json();
+        // Verifica che i dati ricevuti siano compatibili con il tipo Actress
+        if (!isActress(dati)) {
+            throw new Error("Formato dei dati non valido")
+        }
+        // Se tutto è valido, restituisce l'oggetto Actress
+        return dati;
+
+    } catch (error) {
+        // Gestione degli errori con stampa a console
+        if (error instanceof Error) {
+            console.error("Errore durante il recupero dell'attrice:", error);
+        } else {
+            console.error("Errore sconosciuto:", error);
+        }
+        // In caso di errore, restituisce null
+        return null;
+    }
+}
